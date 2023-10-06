@@ -74,6 +74,7 @@ public class Main {
             }
         }
         System.out.println("nonbasic coefs: " + Arrays.toString(nonbasic));
+        int[] nonbasic_c = nonbasic;
         int counter = 0;
 
         double[][] cbi_ = new double[1][bi.length];
@@ -103,9 +104,6 @@ public class Main {
         while (true) {
             System.out.println("Iteration " + counter);
             counter++;
-            if (counter == 3) {
-                //return;
-            }
 
             System.out.println("    cb" + counter + ": " + cbi);
             System.out.println("    B" + counter + ": " + Bi);
@@ -261,6 +259,7 @@ public class Main {
         b = MatrixUtils.createRealMatrix(inB);
         c = MatrixUtils.createRealMatrix(inC);
         maximize(c, a, b, inC[0], inA, inB[0]);
+        System.out.println("\n\n\n");
         minimize(c, a, b, inC[0], inA, inB[0]);
     }
 }
