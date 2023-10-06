@@ -1,4 +1,5 @@
-import org.apache.commons.math3.linear.*;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -238,6 +239,15 @@ public class Main {
         solve(C, A, b, Cm, Am, bm);
     }
 
+    public static boolean checkVectorB(double[] inB) {
+        for (int i = 0; i < inB.length; i++) {
+            if (inB[i] < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static void initializeTask() {
         System.out.print("Input number of variables: ");
         Scanner in = new Scanner(System.in);
@@ -252,9 +262,16 @@ public class Main {
         for (int i = 0; i < m; ++i) {
             inA[i] = Arrays.stream(in.nextLine().split(" ")).mapToDouble(Double::valueOf).toArray();
         }
-        System.out.print("Input vector b, separated by spaces: ");
+        boolean isPositiveVectorB = false;
         double[][] inB = new double[1][n];
-        inB[0] = Arrays.stream(in.nextLine().split(" ")).mapToDouble(Double::valueOf).toArray();
+        while (!isPositiveVectorB) {
+            System.out.print("Input vector b, separated by spaces: ");
+            inB[0] = Arrays.stream(in.nextLine().split(" ")).mapToDouble(Double::valueOf).toArray();
+            isPositiveVectorB = checkVectorB(inB[0]);
+            if (!isPositiveVectorB) {
+                System.out.println("Vector b should be positive! Try again!");
+            }
+        }
         a = MatrixUtils.createRealMatrix(inA);
         b = MatrixUtils.createRealMatrix(inB);
         c = MatrixUtils.createRealMatrix(inC);
