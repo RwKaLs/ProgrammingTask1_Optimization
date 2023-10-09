@@ -1,8 +1,6 @@
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import org.apache.commons.math3.util.Precision;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -41,15 +39,12 @@ public class Main {
     public static double[][] transpose(double[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
-
         double[][] result = new double[cols][rows];
-
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 result[j][i] = matrix[i][j];
             }
         }
-
         return result;
     }
 
@@ -109,9 +104,7 @@ public class Main {
             }
         }
         System.out.println("nonbasic coefs: " + Arrays.toString(nonbasic));
-        int[] nonbasic_c = nonbasic;
         int counter = 0;
-
         double[][] cbi_ = new double[1][bi.length];
         double[][] cnbi_ = new double[1][nonbasic.length];
         for (int i = 0; i < bi.length; i++) {
@@ -138,15 +131,12 @@ public class Main {
         while (true) {
             System.out.println("Iteration " + counter);
             counter++;
-
             cbi_ = cbi.getData();
             System.out.print("    cb" + counter + ": ");
             print_with_accuracy(cbi_, eps);
-
             Bi_ = Bi.getData();
             System.out.print("    B" + counter + ": ");
             print_with_accuracy(Bi_, eps);
-
             nBi_ = nBi.getData();
             System.out.print("    nB" + counter + ": ");
             print_with_accuracy(nBi_, eps);
@@ -172,7 +162,6 @@ public class Main {
             System.out.print("    zj-cj: ");
             print_with_accuracy(zjcj, eps);
             double[] zj_cj_ = zj_cj.getData()[0];
-
             double min = 1000000000;
             int index_entering = -1;
             int index_leaving = -1;
@@ -183,7 +172,7 @@ public class Main {
                 if (el < 0) {
                     stop = 0;
                 }
-                if (el < min && el < 0) { //todo
+                if (el < min && el < 0) {
                     index_entering = nonbasic[cnt];
                     min = el;
                 }
@@ -228,7 +217,6 @@ public class Main {
             RealMatrix Pe = MatrixUtils.createRealMatrix(enterMx_);
             System.out.println("    Feasibility computations:");
 
-
             RealMatrix Bi_1P1 = Bi_inverse.preMultiply(Pe);
             double[] Bi_1P1_ = Bi_1P1.getData()[0];
             System.out.print("    B0^-1Pe: ");
@@ -236,9 +224,9 @@ public class Main {
 
             double x1 = 1000000000;
             double[] ratios = new double[bi.length];
-            double[] xbi = new double[bi.length];
+            double[] xbi;
             xbi = XBi.transpose().getData()[0];
-            double[] bipj = new double[bi.length];
+            double[] bipj;
             bipj = Bi_1P1.getData()[0];
             for (int j = 0; j < bi.length; j++) {
                 if (xbi[j] / bipj[j] < x1 && bi[j] / bipj[j] > 0) {
@@ -247,7 +235,6 @@ public class Main {
                 }
                 ratios[j] = xbi[j] / bipj[j];
             }
-
             int contains_pos = 0;
             for (double el : ratios) {
                 if (el > 0) {
@@ -259,13 +246,11 @@ public class Main {
                 System.out.println("solution is unbounded");
                 return -1.0;
             }
-
             System.out.println("    index of leaving: " + index_leaving);
             System.out.println("    leaving vec: " + Arrays.toString(A.getColumn(index_leaving)));
             bi[index_leaving - nonbasic.length] = index_entering;
             cbi.setEntry(0, index_leaving - nonbasic.length, Cm[index_entering]);
             Bi.setRow(index_leaving - nonbasic.length, transpose(Am)[index_entering]);
-
             c = 0;
             for (int i = 0; i < Cm.length; i++) {
                 int ans = -1;
@@ -305,8 +290,8 @@ public class Main {
     }
 
     public static boolean checkVectorB(double[] inB) {
-        for (int i = 0; i < inB.length; i++) {
-            if (inB[i] < 0) {
+        for (double v : inB) {
+            if (v < 0) {
                 return false;
             }
         }
