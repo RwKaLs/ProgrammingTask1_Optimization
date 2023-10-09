@@ -255,7 +255,6 @@ public class Main {
                     break;
                 }
             }
-            System.out.println(Arrays.toString(ratios));
             if (contains_pos == 0) {
                 System.out.println("solution is unbounded");
                 return -1.0;
