@@ -10,9 +10,6 @@ public class Main {
 
     public static void main(String[] args) {
         initializeTask();
-        //System.out.println("c: " + c);
-        //System.out.println("a: " + a);
-        //System.out.println("b: " + b);
     }
 
     public static int[] im(double[][] A) {
@@ -54,7 +51,7 @@ public class Main {
         return result;
     }
 
-    public static void solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+    public static double solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
         int[] bi = im(Am);
         System.out.println("basic coefs: " + Arrays.toString(bi));
         int[] nonbasic = new int[Cm.length - bi.length];
@@ -94,7 +91,6 @@ public class Main {
             nBi_[i] = transpose(Am)[nonbasic[i]];
         }
 
-
         RealMatrix cbi = MatrixUtils.createRealMatrix(cbi_);
         RealMatrix cnbi = MatrixUtils.createRealMatrix(cnbi_);
 
@@ -127,10 +123,10 @@ public class Main {
             int stop = 1;
             int cnt = 0;
             for (double el : zj_cj_) {
-                if (el < -eps) {
+                if (el < 0) {
                     stop = 0;
                 }
-                if (el < min - eps) { //todo
+                if (el < min && el < 0) { //todo
                     index_entering = nonbasic[cnt];
                     min = el;
                 }
@@ -155,7 +151,7 @@ public class Main {
                     }
                 }
                 System.out.println(ans);
-                return;
+                return z;
             }
             System.out.println("    index of entering: " + index_entering);
             double[][] enterMx_ = new double[1][bi.length];
@@ -174,7 +170,7 @@ public class Main {
             double[] bipj = new double[bi.length];
             bipj = Bi_1P1.getData()[0];
             for (int j = 0; j < bi.length; j++) {
-                if (xbi[j] / bipj[j] < x1 - eps && bi[j] / bipj[j] > 0) {
+                if (xbi[j] / bipj[j] < x1 && bi[j] / bipj[j] > 0) {
                     x1 = xbi[j] / bipj[j];
                     index_leaving = bi[j];
                 }
@@ -189,7 +185,7 @@ public class Main {
                 }
                 if (contains_pos == 0) {
                     System.out.println("solution is unbounded");
-                    return;
+                    return -1.0;
                 }
             }
             System.out.println("    ratios: " + Arrays.toString(ratios));
@@ -225,16 +221,16 @@ public class Main {
         }
     }
 
-    public static void maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
-        solve(C, A, b, Cm, Am, bm, eps);
+    public static double maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+        return solve(C, A, b, Cm, Am, bm, eps);
     }
 
-    public static void minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+    public static double minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
         for (int i = 0; i < Cm.length; i++) {
             Cm[i] = -Cm[i];
         }
         C.setRow(0, Cm);
-        solve(C, A, b, Cm, Am, bm, eps);
+        return solve(C, A, b, Cm, Am, bm, eps);
     }
 
     public static boolean checkVectorB(double[] inB) {
