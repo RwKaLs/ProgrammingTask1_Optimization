@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class Main {
     private static RealMatrix c, a, b;
-    private static double eps;
 
     public static void main(String[] args) {
         initializeTask();
@@ -55,7 +54,7 @@ public class Main {
         return result;
     }
 
-    public static void solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm) {
+    public static void solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
         int[] bi = im(Am);
         System.out.println("basic coefs: " + Arrays.toString(bi));
         int[] nonbasic = new int[Cm.length - bi.length];
@@ -127,12 +126,11 @@ public class Main {
             //maximize
             int stop = 1;
             int cnt = 0;
-            for (double el :
-                    zj_cj_) {
-                if (el < 0) {
+            for (double el : zj_cj_) {
+                if (el < -eps) {
                     stop = 0;
                 }
-                if (el < min && el < 0) {
+                if (el < min - eps) { //todo
                     index_entering = nonbasic[cnt];
                     min = el;
                 }
@@ -176,7 +174,7 @@ public class Main {
             double[] bipj = new double[bi.length];
             bipj = Bi_1P1.getData()[0];
             for (int j = 0; j < bi.length; j++) {
-                if (xbi[j] / bipj[j] < x1 && bi[j] / bipj[j] > 0) {
+                if (xbi[j] / bipj[j] < x1 - eps && bi[j] / bipj[j] > 0) {
                     x1 = xbi[j] / bipj[j];
                     index_leaving = bi[j];
                 }
@@ -227,16 +225,16 @@ public class Main {
         }
     }
 
-    public static void maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm) {
-        solve(C, A, b, Cm, Am, bm);
+    public static void maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+        solve(C, A, b, Cm, Am, bm, eps);
     }
 
-    public static void minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm) {
+    public static void minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
         for (int i = 0; i < Cm.length; i++) {
             Cm[i] = -Cm[i];
         }
         C.setRow(0, Cm);
-        solve(C, A, b, Cm, Am, bm);
+        solve(C, A, b, Cm, Am, bm, eps);
     }
 
     public static boolean checkVectorB(double[] inB) {
@@ -275,8 +273,14 @@ public class Main {
         a = MatrixUtils.createRealMatrix(inA);
         b = MatrixUtils.createRealMatrix(inB);
         c = MatrixUtils.createRealMatrix(inC);
-        maximize(c, a, b, inC[0], inA, inB[0]);
-        System.out.println("\n\n\n");
-        minimize(c, a, b, inC[0], inA, inB[0]);
+        System.out.println("Input epsilon: ");
+        double eps = Double.parseDouble(in.nextLine());
+        System.out.println("Choose the type of optimization (1 - maximize, 2 - minimize): ");
+        int type = Integer.parseInt(in.nextLine());
+        if (type == 1) {
+            maximize(c, a, b, inC[0], inA, inB[0], eps);
+        } else {
+            minimize(c, a, b, inC[0], inA, inB[0], eps);
+        }
     }
 }
