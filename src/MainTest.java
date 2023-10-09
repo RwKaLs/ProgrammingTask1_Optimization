@@ -21,7 +21,7 @@ public class MainTest {
         RealMatrix c = MatrixUtils.createRealMatrix(inC);
         RealMatrix b = MatrixUtils.createRealMatrix(inB);
         RealMatrix a = MatrixUtils.createRealMatrix(inA);
-        double eps = 0.1;
+        double eps = 0.01;
         Main.maximize(c, a, b, inC[0], inA, inB[0], eps);
     }
 }

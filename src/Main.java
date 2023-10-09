@@ -1,6 +1,8 @@
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
+import org.apache.commons.math3.util.Precision;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -49,6 +51,42 @@ public class Main {
         }
 
         return result;
+    }
+
+    public static String formatWithAccuracy(double value, double eps) {
+        int decimalPlaces = 0;
+        if (value == 0) {
+            value = 0;
+        }
+        while (eps < 1.0) {
+            eps *= 10;
+            decimalPlaces++;
+        }
+        String formatString = "%." + decimalPlaces + "f";
+        return String.format(formatString, value);
+    }
+
+    public static void print_with_accuracy(double[][] matrix, double eps) {
+        int i = 0;
+        for (double[] doubles : matrix) {
+            if (i != 0) {
+                System.out.print("    ");
+            }
+            i++;
+            for (double element : doubles) {
+                String formattedElement = formatWithAccuracy(element, eps);
+                System.out.print(formattedElement + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public static void print_with_accuracy_1(double[] matrix, double eps) {
+        for (double element : matrix) {
+            String formattedElement = formatWithAccuracy(element, eps);
+            System.out.print(formattedElement + " ");
+        }
+        System.out.println();
     }
 
     public static double solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
@@ -101,19 +139,38 @@ public class Main {
             System.out.println("Iteration " + counter);
             counter++;
 
-            System.out.println("    cb" + counter + ": " + cbi);
-            System.out.println("    B" + counter + ": " + Bi);
-            System.out.println("    nB" + counter + ": " + nBi);
+            cbi_ = cbi.getData();
+            System.out.print("    cb" + counter + ": ");
+            print_with_accuracy(cbi_, eps);
+
+            Bi_ = Bi.getData();
+            System.out.print("    B" + counter + ": ");
+            print_with_accuracy(Bi_, eps);
+
+            nBi_ = nBi.getData();
+            System.out.print("    nB" + counter + ": ");
+            print_with_accuracy(nBi_, eps);
+
             RealMatrix Bi_inverse = MatrixUtils.inverse(Bi);
-            System.out.println("    B^-1: " + Bi_inverse);
+            double[][] Bi_inverse_ = Bi_inverse.getData();
+            System.out.print("    B^-1: ");
+            print_with_accuracy(Bi_inverse_, eps);
+
             RealMatrix XBi = Bi_inverse.transpose().multiply(b.transpose());
-            System.out.println("    Xb" + counter + ": " + XBi);
+            double[][] XBi_ = XBi.getData();
+            System.out.print("    Xb" + counter + ": ");
+            print_with_accuracy(XBi_, eps);
+
             double z = cbi.multiply(XBi).getData()[0][0];
             System.out.println("    z: " + z);
+
             System.out.println("    Optimality computations:");
+
             RealMatrix CbiBi_1 = cbi.multiply(Bi_inverse.transpose());
             RealMatrix zj_cj = CbiBi_1.multiply(nBi.transpose()).subtract(cnbi);
-            System.out.println("    zj-cj: " + zj_cj);
+            double[][] zjcj = zj_cj.getData();
+            System.out.print("    zj-cj: ");
+            print_with_accuracy(zjcj, eps);
             double[] zj_cj_ = zj_cj.getData()[0];
 
             double min = 1000000000;
@@ -133,7 +190,9 @@ public class Main {
                 cnt++;
             }
             if (stop == 1) {
-                System.out.print("ANSWER:\nF(x) = " + z + "\nx = ");
+                System.out.print("ANSWER:\nF(x) = ");
+                System.out.print(formatWithAccuracy(z, eps));
+                System.out.print("\nx = ");
                 int cn = 0;
                 ArrayList<Double> ans = new ArrayList<>();
                 for (int k = 0; k < Am[0].length; k++) {
@@ -150,18 +209,27 @@ public class Main {
                         ans.add(0.0);
                     }
                 }
-                System.out.println(ans);
+                double[] answer = new double[ans.size()];
+                int v = 0;
+                for (double el :
+                        ans) {
+                    answer[v] = ans.get(v);
+                    v++;
+                }
+                print_with_accuracy_1(answer, eps);
                 return z;
             }
             System.out.println("    index of entering: " + index_entering);
             double[][] enterMx_ = new double[1][bi.length];
             enterMx_[0] = transpose(Am)[index_entering];
             RealMatrix Pe = MatrixUtils.createRealMatrix(enterMx_);
-            System.out.println("    entering vec: " + Pe);
             System.out.println("    Feasibility computations:");
-            System.out.println("    XB" + counter + ": " + XBi);
+
+
             RealMatrix Bi_1P1 = Bi_inverse.preMultiply(Pe);
-            System.out.println("    B0^-1Pe: " + Bi_1P1);
+            double[] Bi_1P1_ = Bi_1P1.getData()[0];
+            System.out.print("    B0^-1Pe: ");
+            print_with_accuracy_1(Bi_1P1_, eps);
 
             double x1 = 1000000000;
             double[] ratios = new double[bi.length];
@@ -188,7 +256,6 @@ public class Main {
                     return -1.0;
                 }
             }
-            System.out.println("    ratios: " + Arrays.toString(ratios));
             System.out.println("    index of leaving: " + index_leaving);
             System.out.println("    leaving vec: " + Arrays.toString(A.getColumn(index_leaving)));
             bi[index_leaving - nonbasic.length] = index_entering;
