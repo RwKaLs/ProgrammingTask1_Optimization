@@ -13,7 +13,7 @@ public class MainTest {
                 {120, 100, 90, 80}
         };
         double[][] inA = new double[][]{
-                {3, 0, 2, 0 ,1, 0, 0, 0},
+                {3, 0, 2, 0, 1, 0, 0, 0},
                 {0, 2, 0, 4, 0, 1, 0, 0},
                 {2, 0, 3, 0, 0, 0, 1, 0},
                 {0, 4, 0, 2, 0, 0, 0, 1}
@@ -22,6 +22,6 @@ public class MainTest {
         RealMatrix b = MatrixUtils.createRealMatrix(inB);
         RealMatrix a = MatrixUtils.createRealMatrix(inA);
         double eps = 0.01;
-        Main.maximize(c, a, b, inC[0], inA, inB[0], eps);
+        Main.maximize(c, a, b, inC[0], inA, inB[0], eps, true);
     }
 }

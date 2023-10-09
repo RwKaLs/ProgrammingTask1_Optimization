@@ -89,7 +89,7 @@ public class Main {
         System.out.println();
     }
 
-    public static double solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+    public static double solve(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps, boolean max) {
         int[] bi = im(Am);
         System.out.println("basic coefs: " + Arrays.toString(bi));
         int[] nonbasic = new int[Cm.length - bi.length];
@@ -191,6 +191,9 @@ public class Main {
             }
             if (stop == 1) {
                 System.out.print("ANSWER:\nF(x) = ");
+                if (!max) {
+                    z = -z;
+                }
                 System.out.print(formatWithAccuracy(z, eps));
                 System.out.print("\nx = ");
                 int cn = 0;
@@ -243,19 +246,21 @@ public class Main {
                     index_leaving = bi[j];
                 }
                 ratios[j] = xbi[j] / bipj[j];
+            }
 
-                int contains_pos = 0;
-                for (double el : ratios) {
-                    if (el > 0) {
-                        contains_pos = 1;
-                        break;
-                    }
-                }
-                if (contains_pos == 0) {
-                    System.out.println("solution is unbounded");
-                    return -1.0;
+            int contains_pos = 0;
+            for (double el : ratios) {
+                if (el > 0) {
+                    contains_pos = 1;
+                    break;
                 }
             }
+            System.out.println(Arrays.toString(ratios));
+            if (contains_pos == 0) {
+                System.out.println("solution is unbounded");
+                return -1.0;
+            }
+
             System.out.println("    index of leaving: " + index_leaving);
             System.out.println("    leaving vec: " + Arrays.toString(A.getColumn(index_leaving)));
             bi[index_leaving - nonbasic.length] = index_entering;
@@ -288,16 +293,16 @@ public class Main {
         }
     }
 
-    public static double maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
-        return solve(C, A, b, Cm, Am, bm, eps);
+    public static double maximize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps, boolean max) {
+        return solve(C, A, b, Cm, Am, bm, eps, max);
     }
 
-    public static double minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps) {
+    public static double minimize(RealMatrix C, RealMatrix A, RealMatrix b, double[] Cm, double[][] Am, double[] bm, double eps, boolean max) {
         for (int i = 0; i < Cm.length; i++) {
             Cm[i] = -Cm[i];
         }
         C.setRow(0, Cm);
-        return solve(C, A, b, Cm, Am, bm, eps);
+        return solve(C, A, b, Cm, Am, bm, eps, max);
     }
 
     public static boolean checkVectorB(double[] inB) {
@@ -341,9 +346,9 @@ public class Main {
         System.out.println("Choose the type of optimization (1 - maximize, 2 - minimize): ");
         int type = Integer.parseInt(in.nextLine());
         if (type == 1) {
-            maximize(c, a, b, inC[0], inA, inB[0], eps);
+            maximize(c, a, b, inC[0], inA, inB[0], eps, true);
         } else {
-            minimize(c, a, b, inC[0], inA, inB[0], eps);
+            minimize(c, a, b, inC[0], inA, inB[0], eps, false);
         }
     }
 }
